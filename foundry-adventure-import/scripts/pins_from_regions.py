@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""pins_from_regions.py ADVENTURE.json CHAPTER BOOK_MAP_SUFFIX ALIGN.json CONFIG.json SCENE_ID OUT.json [LEVEL=FILE ...]
+"""pins_from_regions.py ADVENTURE.json CHAPTER BOOK_MAP_SUFFIX ALIGN.json CONFIG.json SCENE_ID OUT.json [KEY=FILE ...] [LABEL@KEY ...]
 
 Turn a 5etools map image's `mapRegions` into pins for create-area-notes.js.
 - BOOK_MAP_SUFFIX: end of the image href path (e.g. 062-map-3.2-loomlurch.webp)
@@ -21,7 +21,8 @@ def main(adv, chapter, suffix, align, cfg, scene, out, *levels):
     ch = data[int(chapter)]
     cfg = json.load(open(cfg))
     al = json.load(open(align))
-    lvmap = dict(l.split("=", 1) for l in levels)
+    lvmap = dict(l.split("=", 1) for l in levels if "=" in l)
+    force = dict(l.split("@", 1) for l in levels if "@" in l)     # LABEL@align-key: put that area on that level
     names, img = {}, None
 
     def walk(e):
@@ -33,7 +34,13 @@ def main(adv, chapter, suffix, align, cfg, scene, out, *levels):
         elif isinstance(e, list):
             for x in e: walk(x)
     walk(ch)
-    sizes = {k: Image.open(k).size for k in al}
+    imgs = {k: Image.open(k) for k in al}
+    sizes = {k: im.size for k, im in imgs.items()}
+    alpha = {k: im.getchannel("A") for k, im in imgs.items() if im.mode == "RGBA"}
+
+    def opaque(k, x, y):   # levels cut from one page with an island mask: the area must be drawn on that level
+        if k not in alpha or not (0 <= x < sizes[k][0] and 0 <= y < sizes[k][1]): return k not in alpha
+        return alpha[k].getpixel((int(x), int(y))) > 0
     pins = []
     for r in img["mapRegions"]:
         P = np.array(r["points"], float)
@@ -42,13 +49,21 @@ def main(adv, chapter, suffix, align, cfg, scene, out, *levels):
             M = np.array(info["M"]); q = M[:, :2] @ P.mean(0) + M[:, 2]
             w, h = sizes[lv]
             margin = min(q[0], q[1], w - q[0], h - q[1])
+            if opaque(lv, *q): margin += 100000
             if best is None or margin > best[0]: best = (margin, lv, M, w, h)
         _, lv, M, w, h = best
+        label = names.get(r["area"], "?").split(".")[0]
+        if label in force:
+            lv = force[label]; M = np.array(al[lv]["M"]); w, h = sizes[lv]
         poly = (P @ M[:, :2].T + M[:, 2]).round().astype(int).tolist()
         c = M[:, :2] @ P.mean(0) + M[:, 2]
         name = names.get(r["area"], "?")
-        pins.append({"area": r["area"], "label": name.split(".")[0], "name": name,
-                     "page": cfg.get("page_ids", {}).get(f"area:{r['area']}"),
+        page = cfg.get("page_ids", {}).get(f"area:{r['area']}")
+        if not page:   # sub-area (M4a) without its own page: use the parent area's page (M4.)
+            parent = name.split(".")[0].rstrip("abcdefgh")
+            pid = next((i for i, n in names.items() if n.startswith(parent + ".")), None)
+            page = cfg.get("page_ids", {}).get(f"area:{pid}")
+        pins.append({"area": r["area"], "label": name.split(".")[0], "name": name, "page": page,
                      "level": lvmap.get(lv, lv.split("/")[-1]),
                      "x": int(min(max(c[0], 40), w - 40)), "y": int(min(max(c[1], 40), h - 40)), "poly": poly})
     # keep pins apart (insets put several areas' centroids close together)

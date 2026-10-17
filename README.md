@@ -82,3 +82,5 @@ Claude in Chrome's `javascript_tool`. See `foundry-vtt/SKILL.md` → How to conn
   (`sync-world-to-packs.js`), Playwright `page.route` instead of a file server, regex/page/table overrides.
 - 2026-10-17 — Lean adversaries (3–5 features). Hither complete: Slanty Tower + Brigands' Tollway supplements, scenes for
   Downfall (book player map + regions), Watcher's Pool, Slanty Tower floors, Tollway interior, Ixjharatar's den. `open` polygons.
+- 2026-10-17 — Yon: book chapter, Motherhorn pins/tokens on 4 levels (opacity picks the level, `LABEL@level` forces one),
+  3 supplements, 6 supplement scenes; two-trait checks ("Strength (Athletics) or Dexterity (Acrobatics)"), `check-icons.js`.

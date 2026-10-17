@@ -71,6 +71,7 @@ ABIL = r"(Strength|Dexterity|Constitution|Intelligence|Wisdom|Charisma)"
 SKILLS = r"(?: \((\{@skill [^}]+\}(?: or \{@skill [^}]+\})*)\))?"
 RX_CHECK = re.compile(r"(?:\b(a|an) )?\{@dc (\d+)\} " + ABIL + SKILLS + r" (group )?check")
 RX_PLAIN_CHECK = re.compile(ABIL + SKILLS + r" check(s)?\b")   # no DC: "disadvantage on Dexterity (Stealth) checks"
+RX_TWO = re.compile(r"(?:\b(a|an) )?\{@dc (\d+)\} " + ABIL + SKILLS + r" or " + ABIL + SKILLS + r" (group )?check")
 RX_SAVE = re.compile(r"(?:\b(a|an) )?\{@dc (\d+)\} " + ABIL + r" saving throw")
 RX_SAVE_DC = re.compile(r"\(save \{@dc (\d+)\}\)")
 RX_DMG = re.compile(r"\b\d+ \(\{@dice ([^}]+)\}\) (\w+) damage")
@@ -91,6 +92,7 @@ GENERIC = [
     (r"\b(?:is|are) reduced to 0 hit points", "marks its last Hit Point"),
     (r"\bdrops to 0 hit points", "marks its last Hit Point"),
     (r"\breduced to 0 hit points", "with its last Hit Point marked"),
+    (r"\b(\w+s) (who|that) marks its last Hit Point", r"\1 \2 mark their last Hit Point"),
     (r"\bability check, attack roll, or saving throw", "action roll or Reaction Roll"),
     (r"\bsaving throws\b", "Reaction Rolls"), (r"\bsaving throw\b", "Reaction Roll"),
     (r"Melee Weapon Attack: \{@hit (\d+)\} to hit, reach 5 ft\., one target\. Hit: ", r"<em>Melee attack</em> +\1. <em>Hit:</em> "),
@@ -116,6 +118,13 @@ def convert_mechanics(s):
         trait = ABILITY_TRAIT[abil.lower()]
         return (f"{an(trait)} " if art else "") + f"<strong>{trait} Reaction Roll ({dc})</strong>"
 
+    def two(m):   # "DC 10 Strength (Athletics) or Dexterity (Acrobatics) check" / "DC 15 Dexterity or Intelligence check"
+        art, dc, a1, s1, a2, s2, group = m.groups()
+        t1 = trait_for(a1, re.findall(r"\{@skill ([^}|]+)", s1 or ""), s)
+        t2 = trait_for(a2, re.findall(r"\{@skill ([^}|]+)", s2 or ""), s)
+        traits = t1 if t1 == t2 else f"{t1} or {t2}"
+        return (f"{an(traits)} " if art else "") + f"<strong>{traits} {'Group Action Roll' if group else 'Roll'} ({dc})</strong>"
+    s = RX_TWO.sub(two, s)
     s = RX_CHECK.sub(check, s)
     s = RX_PLAIN_CHECK.sub(lambda m: trait_for(m.group(1), re.findall(r"\{@skill ([^}|]+)", m.group(2) or ""), s)
                            + (" Rolls" if m.group(3) else " Roll"), s)

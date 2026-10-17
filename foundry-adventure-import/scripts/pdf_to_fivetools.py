@@ -70,6 +70,9 @@ def styled(spans, first_line):
 
 def tag_mechanics(s):
     s = re.sub(r"\bDC (\d+)\b", r"{@dc \1}", s)
+    s = re.sub(r"(\{@dc \d+\} )(strength|dexterity|constitution|intelligence|wisdom|charisma)\b", lambda m: m.group(1) + m.group(2).title(), s)
+    alt = "|".join(SKILLS)
+    s = re.sub(r"\((" + alt + r") or (" + alt + r")\)", r"({@skill \1} or {@skill \2})", s)
     for sk in SKILLS:
         s = re.sub(r"\((" + sk + r")\)", r"({@skill \1})", s)
         s = re.sub(r"\(\{@skill (" + sk + r")\} or (" + "|".join(SKILLS) + r")\)", r"({@skill \1} or {@skill \2})", s)

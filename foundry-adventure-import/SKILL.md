@@ -65,6 +65,10 @@ walls, an Interior darkness region, lights), open areas (pins only), tokens. Roo
 its own walls/lights/region), `create-area-notes.js`, `plan_tokens.py` + `place-tokens.js`. Outdoor maps (terraces,
 floating isles) get no edge walls: jumping and climbing are narrated with the environment's rules.
 
+Light animation types (V14) include flame, torch, pulse, wave, fairy, starlight (there is no "fire"); `"anim": null`
+gives a steady light. Several floors drawn as separate images can be composited side by side (PIL) into one scene.
+Run `scripts/check-icons.js` on every generator's icon list before creating documents.
+
 ## Journal layout
 
 - One JournalEntry per chapter in the world folder `<Adventure>/Book`; supplements in `<Adventure>/Expanded`. Pages: one per top-level section, big locations split out (explicit `pages` plan in the config —
