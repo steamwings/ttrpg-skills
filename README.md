@@ -87,3 +87,4 @@ Claude in Chrome's `javascript_tool`. See `foundry-vtt/SKILL.md` → How to conn
 - 2026-10-17 — Official art: `book_art.py` (book/bestiary art → portraits + round tokens) and `apply-art.js`; `create-docs.js`
   takes `token`. Backdrop scenes from mood art (`create-backdrops.js`). Carnival chapter + hand-placed pins on an illustrated
   map; autolink skips headings.
+- 2026-10-17 — Connected maps become Levels of one scene: `merge-scene-as-level.js` (Brigands' Tollway + the den below it).

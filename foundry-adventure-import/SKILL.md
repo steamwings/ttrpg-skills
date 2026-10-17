@@ -65,6 +65,13 @@ walls, an Interior darkness region, lights), open areas (pins only), tokens. Roo
 its own walls/lights/region), `create-area-notes.js`, `plan_tokens.py` + `place-tokens.js`. Outdoor maps (terraces,
 floating isles) get no edge walls: jumping and climbing are narrated with the environment's rules.
 
+**Connected maps are one scene with Levels.** Before building a scene, check how the text connects it to others
+(stairs, a trapdoor, "beneath", "descends"). A den under a building, a cellar, the floors of a tower: one scene, one
+V14 Level per map (elevation bands, e.g. den −10..0 under a 0..20 ground floor) and a `changeLevel` region on the
+stairs, on both levels. Paste the smaller map onto a canvas the size of the main level image, offset so the staircases
+line up (snap the offset to the grid). `scripts/merge-scene-as-level.js` folds an already-built scene into another.
+Side-by-side composites of floors are only a fallback.
+
 Light animation types (V14) include flame, torch, pulse, wave, fairy, starlight (there is no "fire"); `"anim": null`
 gives a steady light. Several floors drawn as separate images can be composited side by side (PIL) into one scene.
 Run `scripts/check-icons.js` on every generator's icon list before creating documents.
