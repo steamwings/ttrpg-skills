@@ -3,7 +3,7 @@
 // The link paragraph is replaced on re-run: any <p> starting with 📖 that links into the same journal is removed first.
 // Keep descriptions short — the long text lives in the (GM-only) journal page the link opens.
 async () => {
-  const BASE = "http://localhost:8765";
+  const BASE = globalThis.__IMPORT_BASE ?? "http://localhost:8765";
   const FIELD = "system.description";
   const { journal, actors } = await (await fetch(`${BASE}/actor-links.json`)).json();
   const out = { updated: [], failed: [] };

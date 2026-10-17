@@ -9,7 +9,7 @@ so fivetools_to_foundry.py can convert it like book text. Font roles (this templ
                       lines split into wide-gapped spans are table rows
   ScalaSans* (red)    stat block body (with the 8pt italic type line and dark bold-italic trait names)
   NouvelleVague-*     in-world letters/stories -> quote
-  ignored: white text (map labels, cover), page headers/footers (ScalySans, y > 790), credit/ad colours.
+  ignored: white text (map labels, cover), page headers/footers (ScalySans, y > 803), credit/ad colours.
 Also writes OUT.statblocks.json (raw 5e stat block text by name) for converting the creatures by hand.
 Inline mechanics are re-tagged ({@dc}, {@skill}, {@dice}, {@condition}) so the 5e -> Daggerheart rules apply.
 """
@@ -30,7 +30,7 @@ def is_red(c):
 
 def role(s, y):
     f, size, c = s["font"], s["size"], s["color"]
-    if c == 16777215 or y > 790 or f.startswith("ScalySans") or f.startswith("Zatanna"):
+    if c == 16777215 or y > 803 or f.startswith("ScalySans") or f.startswith("Zatanna"):
         return "skip"
     if f.startswith("Mr.Eaves"):
         if 16.5 <= size <= 17.5: return "sbname"
@@ -84,6 +84,8 @@ def main():
     ap.add_argument("pdf"); ap.add_argument("out")
     ap.add_argument("--skip", default=""); ap.add_argument("--title", default=None)
     ap.add_argument("--known", default=None, help="JSON list of creature names to link when bold in body text")
+    ap.add_argument("--order", choices=["columns", "stream"], default="columns",
+                    help="columns: left column then right, top to bottom (default); stream: PDF content order")
     ap.add_argument("--move", action="append", default=[], help='"Child>Parent": move a named entry to the end of another section (fixes sidebar reading order)')
     a = ap.parse_args()
     skip = {int(x) for x in a.skip.split(",") if x}
@@ -94,7 +96,11 @@ def main():
     lines = []
     for pn, pg in enumerate(doc, 1):
         if pn in skip: continue
-        for b in pg.get_text("dict")["blocks"]:
+        mid = pg.rect.width / 2
+        blocks = [b for b in pg.get_text("dict")["blocks"] if b["type"] == 0]
+        if a.order == "columns":   # 2-column PHB layout: left column, then right column, each top to bottom
+            blocks.sort(key=lambda b: (b["bbox"][0] >= mid - 10, round(b["bbox"][1])))
+        for b in blocks:
             if b["type"] != 0: continue
             for li, l in enumerate(b["lines"]):
                 spans = [s for s in l["spans"] if s["text"]]
@@ -262,6 +268,11 @@ def paragraphs(ls, text_of, body=False):
     out, items = [], []
     for p in paras:
         t = text_of(p)
+        # a paragraph that continues in the next column/page: previous one has no closing punctuation
+        if out and isinstance(out[-1], str) and not items and not re.search(r"[.!?:\"”’)\]}]$", out[-1]) \
+                and re.match(r"^[a-z(0-9]", t):
+            out[-1] = out[-1] + " " + t
+            continue
         if t.startswith("•"):
             items.append(t.lstrip("•  ").strip()); continue
         if items: out.append({"type": "list", "items": items}); items = []

@@ -77,3 +77,6 @@ Claude in Chrome's `javascript_tool`. See `foundry-vtt/SKILL.md` → How to conn
   `create-area-notes.js`). Bavlorna's Cottage: 20 pins on 3 levels.
 - 2026-10-17 — Supplements: `pdf_to_fivetools.py` (PHB-style PDFs → 5etools-like JSON), `create-docs.js`, `page_prepend`,
   `import.json` options, Daggerheart creature-conversion guidelines. First: The Watcher's Pool (journal, 4 actors, environment, item, handout).
+- 2026-10-17 — Thither: book chapter, 3 supplements, 4 supplement scenes from hand-traced specs (`scene_from_spec.py`,
+  `build-scene.js`), hidden tokens per area (`plan_tokens.py`, `place-tokens.js`), handouts, world→compendium sync
+  (`sync-world-to-packs.js`), Playwright `page.route` instead of a file server, regex/page/table overrides.

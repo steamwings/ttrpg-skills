@@ -96,7 +96,8 @@ GENERIC = [
     (r"Melee Weapon Attack: \{@hit (\d+)\} to hit, reach 5 ft\., one target\. Hit: ", r"<em>Melee attack</em> +\1. <em>Hit:</em> "),
     (r"\b([Tt]he|a|that|[Tt]his|each|any) (group )?check\b", r"\1 \2roll"), (r"\bcheck (result|total)", r"roll \1"),
     (r"\b(succeeds|fails) (on )?(the|its|their) (check|save|saving throw)", r"\1 \2\3 roll"),
-    (r"\b([Oo]n a) (failed|successful) (save|check)\b", r"\1 \2 roll"), (r"\b(fails|succeeds on) the save\b", r"\1 the roll"),
+    (r"\b([Oo]n a) (failed|successful) (save|check)\b", r"\1 \2 roll"),
+    (r"\bgroup (<strong>)?(Strength|Agility|Finesse|Instinct|Presence|Knowledge) Roll", r"\1\2 Group Action Roll"), (r"\b(fails|succeeds on) the save\b", r"\1 the roll"),
     (r"\bmakes? a (successful )?save\b", r"makes a \1roll"),
 ]
 
@@ -414,6 +415,11 @@ class Converter:
                 journal["pages"].append({"_id": pid, "name": name, "type": "text",
                                          "sort": (len(journal["pages"]) + 1) * 100000, "title": {"show": True, "level": 1},
                                          "text": {"format": 1, "content": html_}})
+        for tb in self.cfg.get("extra_tables", []):   # hand-written (e.g. Daggerheart) tables: embed with @@TABLE[name]
+            self.tables.append({"_id": self.ids.setdefault(f"table:{tb['name']}", rid()), "name": tb["name"],
+                                "formula": tb["formula"], "replacement": True, "displayRoll": True,
+                                "results": [{"type": "text", "name": "", "description": r["description"], "range": r["range"],
+                                             "weight": r["range"][1] - r["range"][0] + 1} for r in tb["results"]]})
         for img in self.cfg.get("image_pages", []):
             url = self.cfg["img_base"].rstrip("/") + "/" + img["path"]
             dest = self.cfg["img_dest"].rstrip("/") + "/" + img["path"].split("/")[-1]
@@ -437,9 +443,15 @@ class Converter:
             c = re.sub(r"@@PAGE\[([^\]]*)\]\{([^}]*)\}", lambda m: f"@UUID[{base}{m.group(1)}]{{{m.group(2)}}}", c)
             for a, b in self.cfg.get("overrides", []):
                 c = c.replace(a, b)
+            for a, b in self.cfg.get("overrides_re", []):   # regex (DOTALL) for whole blocks, e.g. a 5e table pasted as text
+                c = re.sub(a, lambda m: b, c, flags=re.S)
+            c = re.sub(r"@@TABLE\[([^\]]*)\]", lambda m: f"@Embed[RollTable.{self.ids['table:' + m.group(1)]} rollable]", c)
             return c
         for p in journal["pages"]:
             if p["type"] == "text": p["text"]["content"] = self.autolink(fix(p["text"]["content"]))
+            if p["name"] in self.cfg.get("page_replace", {}):   # hand-written Daggerheart version of a 5e-only page
+                p["text"]["content"] = fix("".join(f"<p>🌲 Daggerheart: @UUID[{u}]</p>" for u in self.cfg.get("page_links", {}).get(p["name"], []))
+                                           + self.cfg["page_replace"][p["name"]])
         for tb in self.tables:
             for r in tb["results"]: r["description"] = fix(r["description"])
         return journal, base

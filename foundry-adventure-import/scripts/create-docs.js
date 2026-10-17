@@ -3,9 +3,11 @@
 // (Item docs have no `items`). Fixed _ids mean re-runs replace in place and every @UUID / token link survives.
 // UPLOADS: local files served next to the JSON -> Foundry paths (uploaded once; existing files are kept).
 async () => {
-  const BASE = "http://localhost:8765";
-  const DOCS = "watchers-pool-docs.json";
-  const UPLOADS = { "the-watcher.webp": `worlds/${game.world.id}/assets/adversaries/witchlight/the-watcher.webp` };
+  const BASE = globalThis.__IMPORT_BASE ?? "http://localhost:8765";
+  // BASE/import.json: {"docs": "x-docs.json", "uploads": {"local-file.webp": "worlds/<world>/assets/..."}}
+  const opt = await fetch(`${BASE}/import.json`).then(r => r.json()).catch(() => ({}));
+  const DOCS = opt.docs ?? "docs.json";
+  const UPLOADS = opt.uploads ?? {};
   const FP = foundry.applications.apps.FilePicker.implementation;
   const out = { created: [], uploaded: [], errors: [] };
 

@@ -5,13 +5,13 @@
 // Pins are visible only to users who can see the journal: keep the journal at default ownership NONE.
 // Idempotent: notes flagged {adventure-import: {area}} on the scene are replaced.
 async () => {
-  const BASE = "http://localhost:8765";
-  const PINS = "cottage-pins.json";
+  const BASE = globalThis.__IMPORT_BASE ?? "http://localhost:8765";
+  const PINS = (await fetch(`${BASE}/import.json`).then(r => r.json()).catch(() => ({}))).pins ?? "pins.json";
   const ICON_DIR = `worlds/${game.world.id}/assets/notes/areas`;
   const SIZE = 64;                      // icon size in px (grid is 100)
   const FP = foundry.applications.apps.FilePicker.implementation;
   const { scene: sceneId, journal, pins } = await (await fetch(`${BASE}/${PINS}`)).json();
-  const scene = game.scenes.get(sceneId);
+  const scene = game.scenes.get(sceneId) ?? game.scenes.getName(sceneId);
   const { sceneX, sceneY } = scene.dimensions;
 
   const svg = label => `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">

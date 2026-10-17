@@ -27,7 +27,13 @@ and one "📖" line links to the journal section with the long version (personal
 4. **Review** `review.md`: unmatched creatures/items (add `aliases`, `null` = known, no stat block) and 5e
    leftovers. Fix leftovers with `overrides` (exact find/replace on the rendered HTML) and re-run until the list
    holds only harmless lines (dimensions, flavour).
-5. **Serve and import**: `scripts/serve_cors.py OUT_DIR 8765 127.0.0.1` (background), then run
+5. **Serve and import**. Best: let Playwright answer `http://localhost:8765/*` from a local folder, no server process
+   (background commands get killed after 2 h):
+   `browser_run_code_unsafe`: `page.context().route("http://localhost:8765/**", r => r.fulfill({path: ROOT + name,
+   headers: {"Access-Control-Allow-Origin": "*"}}))` (register once per browser context; re-navigate to /game after).
+   Fallback: `scripts/serve_cors.py OUT_DIR 8765 127.0.0.1` in the background. Every browser script reads
+   `globalThis.__IMPORT_BASE ?? "http://localhost:8765"` plus optional `import.json` options, so one served tree can hold
+   several jobs in sub-folders (`__IMPORT_BASE = ".../scene-cove"`). Then run
    `scripts/import-journal.js` in the `/game` page. It uploads the images (fetched straight from GitHub by the
    browser), replaces the tables and the journal by id. IDs are written back into the config, so re-runs update
    in place and links, Notes and back-links stay valid. Tip: put the function body in the served dir and run
@@ -42,7 +48,22 @@ and one "📖" line links to the journal section with the long version (personal
    semi-transparent SVG label per area (Note text has no alpha, so the label is drawn into the icon), Note → the
    area's page, `levels` + `elevation` = that level's floor (otherwise a "-10 ft" badge shows). Pins are GM-only
    because the journal's default ownership is NONE. Also set `scene.journal` + `journalEntryPage`.
-8. **Look at it**: open a long page, check the TOC, read-aloud boxes, tables, links (`a.content-link.broken`).
+8. **Tokens**: list who the text puts in each area (`[{area, actor, count, linked}]`), `scripts/plan_tokens.py PINS SPEC
+   OUT --grid N` spreads them over grid cells inside the area polygon (nearest the centroid, never under the pin),
+   `scripts/place-tokens.js` creates them **hidden**, at the level's elevation, importing SRD actors into the world
+   first. Unique NPCs linked, generic adversaries unlinked. Creatures that move on a schedule (the hags) go where
+   the text first meets them; say so in the token spec `note`.
+9. **Look at it**: open a long page, check the TOC, read-aloud boxes, tables, links (`a.content-link.broken`).
+
+## Supplement maps → play-ready scenes
+
+Supplement maps have no `mapRegions`, and painterly maps often defeat auto-walls. Trace each keyed room once on a
+downscaled crop and write a spec (`scripts/scene_from_spec.py` docstring): rooms (polygon + doors + secret doors →
+walls, an Interior darkness region, lights), open areas (pins only), tokens. Rooms that share a wall each draw it;
+`clear_doorways` cuts every wall where a door overlaps it and drops duplicates. Then `scripts/build-scene.js`
+(uploads the map, grid from the file name, e.g. `grid-32x21-160ppi` → 160 px squares; day/night rule; replaces only
+its own walls/lights/region), `create-area-notes.js`, `plan_tokens.py` + `place-tokens.js`. Outdoor maps (terraces,
+floating isles) get no edge walls: jumping and climbing are narrated with the environment's rules.
 
 ## Journal layout
 
@@ -73,7 +94,9 @@ and one "📖" line links to the journal section with the long version (personal
 | reduced to / drops to 0 hp | marks its last Hit Point |
 | prone, stunned, paralyzed, blinded / restrained, grappled / invisible | Vulnerable / Restrained / Hidden |
 
-Speeds, darkvision, temporary hit points and hit point arithmetic need a human sentence: use `overrides`.
+Speeds, darkvision, temporary hit points and hit point arithmetic need a human sentence: use `overrides` (exact),
+`overrides_re` (regex, DOTALL, for whole blocks), `page_replace` (a hand-written Daggerheart page, e.g. magic items),
+and `extra_tables` + `@@TABLE[name]` (a 5e table rewritten as a Daggerheart RollTable).
 Spells stay as italic flavour (no Daggerheart equivalents).
 
 ## Supplement PDFs (DMsGuild, Homebrewery/GMBinder "PHB" style)
@@ -98,7 +121,18 @@ site-packages). Supplement journals go to `<Adventure>/Expanded`; link them from
 - Put the scene's tricks (terrain, puzzles, social stakes) on an **Environment** actor with potential adversaries.
 - Friendly NPCs are `npc` actors: short description, motives, notes with roleplay hooks and "in a fight, use X".
 - Data lives in a per-supplement generator script with fixed ids (ids.json) → `scripts/create-docs.js`
-  (delete + recreate by id, so re-run `link-actors.js` afterwards).
+  (delete + recreate by id, so re-run `link-actors.js` afterwards). Damage types are `physical` / `magical`.
+  Check every `icons/...` path exists (HEAD request) before creating; many guessed core icon names don't.
+- Back-links: `scripts/build_links.py JOURNAL PREFIX SPEC OUT` with readable targets (`"Page > Heading"`); it fails
+  on targets a re-split journal no longer has.
+- Handouts: `scripts/make_handouts.py` → one "Handouts: <region>" journal of image pages per region.
+
+## World ↔ compendium sync
+
+The world is the source of truth during prep and play. At the end of a session run
+`foundry-vtt/scripts/sync-world-to-packs.js` (DRY_RUN first): it copies everything under the adventure's root folders
+into the world compendiums with the same ids, mirrors folders, rewrites links to compendium uuids, and creates the
+tables pack if needed. `move-packs-to-world.js` is the exact inverse. Set those packs to PLAYER: NONE.
 
 ## Keep copyrighted text out of this repo
 

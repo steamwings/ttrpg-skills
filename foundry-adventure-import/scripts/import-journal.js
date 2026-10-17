@@ -6,7 +6,7 @@
 //   BASE/images.json   {sourceUrl: "worlds/<world>/assets/..."}; existing files are skipped
 // Target: the world (PACK = "") under folder paths, or a compendium (PACK = "world.<pack>", FOLDER_PATH[last] used).
 async () => {
-  const BASE = "http://localhost:8765";
+  const BASE = globalThis.__IMPORT_BASE ?? "http://localhost:8765";
   // optional BASE/import.json overrides these: {"pack": "", "journalFolder": [...], "tableFolder": [...]}
   const opt = await fetch(`${BASE}/import.json`).then(r => r.ok ? r.json() : {}).catch(() => ({}));
   const PACK = opt.pack ?? "";                      // "" = world sidebar
