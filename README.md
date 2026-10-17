@@ -88,3 +88,5 @@ Claude in Chrome's `javascript_tool`. See `foundry-vtt/SKILL.md` → How to conn
   takes `token`. Backdrop scenes from mood art (`create-backdrops.js`). Carnival chapter + hand-placed pins on an illustrated
   map; autolink skips headings.
 - 2026-10-17 — Connected maps become Levels of one scene: `merge-scene-as-level.js` (Brigands' Tollway + the den below it).
+- 2026-10-17 — Palace chapter: pins on a 4-level scene where the upper floors come from the book map's insets
+  (each inset has its own offset: fix those pins by hand or with `LABEL@level`).
