@@ -1,0 +1,23 @@
+{
+ "adventure": "/path/to/5etools/data/adventure/adventure-xyz.json",
+ "chapter": 2,
+ "journal": {"name": "Ch. 2: Example Swamp", "pack": "world.my-adventure-journals"},
+ "index": "/path/to/foundry-index.json",
+ "pack_priority": ["world.my-adventure-adversaries", "world.my-adventure-npcs", "world.my-adventure-environments", "world.my-adventure-items", "daggerheart.adversaries", "daggerheart.environments", "daggerheart.consumables", "daggerheart.loot"],
+ "pages": [
+  {"title": "Introduction", "ids": ["_intro", "0fe"]},
+  {"title": "The Village", "ids": ["14b:lead", "14c", "14e"]}
+ ],
+ "image_pages": [
+  {"title": "Map: The Village (GM)", "path": "adventure/XYZ/010-map-village.webp"},
+  {"title": "Map: The Village (Players)", "path": "adventure/XYZ/011-map-village-player.webp"}
+ ],
+ "aliases": {"will-o'-wisp": "Will-o'-the-wisps", "animated armor": "Spellbound Armor", "raven": null},
+ "item_aliases": {"potion of invisibility": "Invisibility Potion"},
+ "img_base": "https://raw.githubusercontent.com/5etools-mirror-3/5etools-img/main",
+ "img_dest": "worlds/<world>/assets/journals/<adventure>/<chapter>",
+ "page_links": {"The Village": ["Compendium.world.my-adventure-environments.Actor.<id>"]},
+ "overrides": [
+  ["He has darkvision out to a range of 60 feet.", "He can see in the dark."]
+ ]
+}

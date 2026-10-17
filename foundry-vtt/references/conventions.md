@@ -8,16 +8,18 @@
   - A **different group** gets a different world, so don't merge worlds. Elements get reused by hand, not
     through shared modules.
 - No custom modules for content. Use **world-level compendiums** grouped in Compendium Folders:
-  - *Witchlight*: Witchlight Scenes / Adversaries / Environments / Journals
+  - *Witchlight*: Witchlight Scenes / Adversaries / Environments / NPCs / Items / Journals
+    (journals: folder `Book` = one entry per chapter, `Expanded` = third-party supplements; see `foundry-adventure-import`)
   - *Group Core*: Group Adversaries / Journals / Tables (for future campaigns of the same group;
     "Group Tables" may duplicate `daggerheart.rolltables`. That's still undecided.)
 
-## Assets (`Data/assets/...`)
+## Assets (`worlds/<world>/assets/...`, inside the world folder)
 
 ```
 assets/maps/prismeer/{hither,thither,yon,palace,carnival,generic}/
 assets/tokens/{pcs,adversaries,npcs}/
 assets/handouts/
+assets/journals/<adventure>/<chapter>/   (book art and maps used by journal pages)
 assets/audio/{music,ambience,sfx}/
 ```
 Filenames: lowercase-hyphenated, no spaces/parentheses/apostrophes, `.webp` for images.

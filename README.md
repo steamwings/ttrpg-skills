@@ -9,6 +9,7 @@ instructions) plus `scripts/`, `references/` and `examples/`.
 | [`foundry-vtt/`](foundry-vtt/SKILL.md) | Driving a Foundry world from the browser tab: scenes, Scene Levels, stairs, surfaces, uploads, Daggerheart system quirks, world conventions |
 | [`map-prep/`](map-prep/SKILL.md) | Measuring grid pitch/phase and cropping multi-floor maps to identical, grid-aligned canvases |
 | [`foundry-auto-walls/`](foundry-auto-walls/SKILL.md) | Auto-detecting walls, doors and windows from a map image (two methods, by map style) and pushing them per level |
+| [`foundry-adventure-import/`](foundry-adventure-import/SKILL.md) | Adventure text → GM journals (5etools JSON or supplement PDFs), 5e → Daggerheart mechanics, actor ↔ journal links |
 
 Typical pipeline for a new multi-floor map:
 `map-prep` (crop/align) → `foundry-vtt/upload-files.js` → Levels + `create-stair.js` +
@@ -68,3 +69,6 @@ Claude in Chrome's `javascript_tool`. See `foundry-vtt/SKILL.md` → How to conn
 - 2026-10-04 — Palace review #5: `apply_fixes.py` gains `dedupe_parallel` (walls over doors, double lines), `cuts`
   (open ramp/bridge mouths; 8 storm-court ramps), `rebuild` (one clean wall along a messy perimeter side);
   `replace-auto-walls.js`. Lower+Upper: 5,045 → 3,610 walls.
+- 2026-10-17 — `foundry-adventure-import`: 5etools chapter → compendium journal (pages, keyed-area anchors, map image
+  pages, environment links), 5e → Daggerheart conversion rules + review/overrides loop, browser-side image upload,
+  actor 📖 back-links. Playwright MCP documented as a second transport. First chapter: Witchlight ch. 2 (Hither).
