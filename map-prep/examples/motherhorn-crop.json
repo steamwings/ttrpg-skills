@@ -1,0 +1,7 @@
+{"target_pitch":100,"frame":[3300,3800],"anchor_out":[825.5,972],
+ "floors":[
+  {"src":"motherhorn-understage.webp","out":"out/motherhorn-l1-understage.webp","anchor":[-710,-1222]},
+  {"src":"motherhorn-stage.webp","out":"out/motherhorn-l2-stage.webp","anchor":[644,879]},
+  {"src":"motherhorn-tower-1.webp","out":"out/motherhorn-l3-tower-1.webp","anchor":[811,450]},
+  {"src":"motherhorn-tower-2.webp","out":"out/motherhorn-l4-tower-2.webp","anchor":[615,350]}
+ ]}

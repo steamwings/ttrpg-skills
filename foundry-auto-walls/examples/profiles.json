@@ -1,0 +1,277 @@
+{
+ "motherhorn": {
+  "mask": "outline",
+  "open_disk": 3,
+  "min_blob_extent": 60,
+  "wall": {
+   "br": [
+    -1,
+    60
+   ],
+   "rg_abs": 30,
+   "rb": [
+    -40,
+    40
+   ],
+   "gr_max": 40
+  },
+  "glass": {
+   "gr_min": 20,
+   "rb_min": -200,
+   "br": [
+    140,
+    235
+   ]
+  },
+  "min_glass_px": 999999,
+  "open": 5,
+  "door_fill": 0.5,
+  "door_thick": [
+   10,
+   34
+  ],
+  "bridge": 55,
+  "simplify": 3.0,
+  "spur": 25,
+  "merge_collinear": 8,
+  "bridge_gap": 45,
+  "min_cluster": 150,
+  "min_cluster_extent": 100,
+  "sky_edge": {
+   "b_minus_r": 35,
+   "min_area": 20000,
+   "simplify": 5
+  },
+  "door_len": [
+   35,
+   210
+  ],
+  "door_merge_gap": 15,
+  "door_segments": "rect",
+  "door_connect": 40
+ },
+ "palace": {
+  "wall": {
+   "br": [
+    95,
+    200
+   ],
+   "rg_abs": 42,
+   "rb": [
+    14,
+    62
+   ],
+   "gr_max": 0
+  },
+  "door": {
+   "min_rgb": [
+    232,
+    232,
+    228
+   ]
+  },
+  "glass": {
+   "gr_min": 20,
+   "rb_min": -200,
+   "br": [
+    140,
+    235
+   ]
+  },
+  "min_glass_px": 999999,
+  "close": 13,
+  "open": 7,
+  "wall_max_half_thickness": 28,
+  "min_wall_area": 2500,
+  "door_len": [
+   46,
+   210
+  ],
+  "door_thick": [
+   10,
+   30
+  ],
+  "door_fill": 0.6,
+  "door_merge_gap": 15,
+  "door_segments": "rect",
+  "white_windows": [
+   14,
+   46
+  ],
+  "simplify": 3.0,
+  "spur": 20,
+  "merge_collinear": 8,
+  "bridge_gap": 45,
+  "door_connect": 40,
+  "min_cluster": 150,
+  "min_cluster_extent": 100,
+  "suppress_white_blobs": 60,
+  "sandwich": {
+   "dark": 40,
+   "min_run": 3,
+   "reach": 15,
+   "min_extent": 100,
+   "erase_half": 14
+  }
+ },
+ "palace_L1": {
+  "wall": {
+   "br": [
+    95,
+    200
+   ],
+   "rg_abs": 42,
+   "rb": [
+    14,
+    62
+   ],
+   "gr_max": 0
+  },
+  "door": {
+   "min_rgb": [
+    232,
+    232,
+    228
+   ]
+  },
+  "glass": {
+   "gr_min": 20,
+   "rb_min": -200,
+   "br": [
+    140,
+    235
+   ]
+  },
+  "min_glass_px": 999999,
+  "close": 13,
+  "open": 7,
+  "wall_max_half_thickness": 28,
+  "min_wall_area": 2500,
+  "door_len": [
+   46,
+   210
+  ],
+  "door_thick": [
+   10,
+   30
+  ],
+  "door_fill": 0.6,
+  "door_merge_gap": 15,
+  "door_segments": "rect",
+  "white_windows": [
+   14,
+   46
+  ],
+  "simplify": 3.0,
+  "spur": 20,
+  "merge_collinear": 8,
+  "bridge_gap": 45,
+  "door_connect": 40,
+  "min_cluster": 150,
+  "min_cluster_extent": 100,
+  "suppress_white_blobs": 60,
+  "sandwich": {
+   "dark": 40,
+   "min_run": 3,
+   "reach": 15,
+   "min_extent": 100,
+   "erase_half": 14,
+   "box": [
+    470,
+    370,
+    3300,
+    3320
+   ]
+  },
+  "chain_openings": 130,
+  "veto": {
+   "box": [
+    470,
+    360,
+    3330,
+    3260
+   ],
+   "green": 15
+  }
+ },
+ "palace_L2": {
+  "wall": {
+   "br": [
+    95,
+    200
+   ],
+   "rg_abs": 42,
+   "rb": [
+    14,
+    62
+   ],
+   "gr_max": 0
+  },
+  "door": {
+   "min_rgb": [
+    232,
+    232,
+    228
+   ]
+  },
+  "glass": {
+   "gr_min": 20,
+   "rb_min": -200,
+   "br": [
+    140,
+    235
+   ]
+  },
+  "min_glass_px": 999999,
+  "close": 13,
+  "open": 7,
+  "wall_max_half_thickness": 28,
+  "min_wall_area": 2500,
+  "door_len": [
+   46,
+   210
+  ],
+  "door_thick": [
+   10,
+   30
+  ],
+  "door_fill": 0.6,
+  "door_merge_gap": 15,
+  "door_segments": "rect",
+  "white_windows": [
+   14,
+   46
+  ],
+  "simplify": 3.0,
+  "spur": 20,
+  "merge_collinear": 8,
+  "bridge_gap": 45,
+  "door_connect": 40,
+  "min_cluster": 150,
+  "min_cluster_extent": 100,
+  "suppress_white_blobs": 60,
+  "sandwich": {
+   "dark": 40,
+   "min_run": 3,
+   "reach": 15,
+   "min_extent": 100,
+   "erase_half": 14,
+   "box": [
+    450,
+    310,
+    3540,
+    3420
+   ]
+  },
+  "chain_openings": 130,
+  "veto": {
+   "box": [
+    450,
+    300,
+    3545,
+    3430
+   ],
+   "green": 15
+  }
+ }
+}

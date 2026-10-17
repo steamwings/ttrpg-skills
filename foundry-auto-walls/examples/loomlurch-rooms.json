@@ -1,0 +1,9 @@
+{
+  "map": "assets/maps/prismeer/thither/loomlurch.webp (3800x5300, grid-aligned, 1 square = 10 ft)",
+  "method": "detect_rooms.py",
+  "floor": "R-G:8:40,G-B:22:,R:70:200",
+  "min_area": 12000,
+  "keep": [174, 230, 306, 367, 366, 406, 436, 444, 508, 637, 115, 161, 199, 581, 645],
+  "rect": [230, 367, 366, 406, 508],
+  "note": "Region ids come from ONE label run and change if thresholds change; re-pick ids from rooms-labels.png after re-labelling. Rejected look-alikes: brown dirt clearings, mushroom garden, tents, mud flats. Insets (upper floors of the towers) were walled too. Two dark storerooms beside the corridor were only partly detected. Result: 422 walls / 21 doors."
+}
