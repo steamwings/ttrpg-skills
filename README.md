@@ -80,3 +80,5 @@ Claude in Chrome's `javascript_tool`. See `foundry-vtt/SKILL.md` → How to conn
 - 2026-10-17 — Thither: book chapter, 3 supplements, 4 supplement scenes from hand-traced specs (`scene_from_spec.py`,
   `build-scene.js`), hidden tokens per area (`plan_tokens.py`, `place-tokens.js`), handouts, world→compendium sync
   (`sync-world-to-packs.js`), Playwright `page.route` instead of a file server, regex/page/table overrides.
+- 2026-10-17 — Lean adversaries (3–5 features). Hither complete: Slanty Tower + Brigands' Tollway supplements, scenes for
+  Downfall (book player map + regions), Watcher's Pool, Slanty Tower floors, Tollway interior, Ixjharatar's den. `open` polygons.

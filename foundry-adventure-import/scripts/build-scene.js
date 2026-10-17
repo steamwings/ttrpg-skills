@@ -71,7 +71,7 @@ async () => {
   out.lights = (await scene.createEmbeddedDocuments("AmbientLight", S.lights.map(l => ({
     x: l.at[0] + OX, y: l.at[1] + OY, levels: [lv.id], elevation: 5, walls: true, flags: { claude: { auto: true } },
     config: { dim: l.dim ?? 20, bright: l.bright ?? 10, color: l.color ?? "#ffb060", alpha: l.alpha ?? 0.35, luminosity: 0.5,
-              attenuation: 0.6, animation: { type: l.anim ?? "torch", speed: 2, intensity: 2 } } })))).length;
+              attenuation: 0.6, animation: { type: l.anim === null ? null : (l.anim ?? "torch"), speed: 2, intensity: 2 } } })))).length;
   out.id = scene.id;
   return out;
 }

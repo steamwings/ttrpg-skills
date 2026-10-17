@@ -69,7 +69,7 @@ def main(spec_path, out_dir):
         secret = [to_img(d[:2], crop) + to_img(d[2:], crop) for d in room.get("secret", [])]   # secret doors (kind 5)
         doors += secret
         if room.get("walls", "doors" in room or room in spec.get("rooms", [])):
-            for i in range(len(poly)):
+            for i in range(len(poly) - (1 if room.get("open") else 0)):   # "open": the last->first edge is a gap
                 a, b = poly[i], poly[(i + 1) % len(poly)]
                 cuts = []
                 for d in doors:

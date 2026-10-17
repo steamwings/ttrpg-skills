@@ -112,6 +112,9 @@ site-packages). Supplement journals go to `<Adventure>/Expanded`; link them from
 
 ## Converting creatures (Daggerheart, not 5e with new numbers)
 
+- **Keep it lean: 3–5 features** (the GM found 8 on one sheet too many). Fold movement quirks, immunities and flavour
+  into the description or into one combined passive; keep one signature Fear move, one or two actions, and the
+  scene-defining reaction (surrender, death trigger). Socials/solos may go to 5.
 - Match the region's tier and the world's existing adversaries (Hither = Tier 2: Difficulty 13–16, HP 3–8, Stress
   2–5, thresholds ~7/14 for small fry to ~13/26 for solos, attacks +1..+4 with 2dX+N damage).
 - Pick the adversary **type** by its job in the scene (standard, skulk, bruiser, leader, solo, social, minion…).

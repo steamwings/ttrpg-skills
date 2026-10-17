@@ -269,7 +269,7 @@ def paragraphs(ls, text_of, body=False):
     for p in paras:
         t = text_of(p)
         # a paragraph that continues in the next column/page: previous one has no closing punctuation
-        if out and isinstance(out[-1], str) and not items and not re.search(r"[.!?:\"”’)\]}]$", out[-1]) \
+        if out and isinstance(out[-1], str) and not items and not re.search(r"[.!?:\"”’\]}]$", out[-1]) \
                 and re.match(r"^[a-z(0-9]", t):
             out[-1] = out[-1] + " " + t
             continue
