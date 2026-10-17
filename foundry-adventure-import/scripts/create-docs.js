@@ -1,5 +1,6 @@
 // create-docs.js — create or replace converted Actors/Items in world folders, keeping fixed ids.
-// Input BASE/<DOCS>: [{_id, name, type, folder: ["Root", "Sub", ...], img, system, items?: [{name, type, img, system}]}]
+// Input BASE/<DOCS>: [{_id, name, type, folder: ["Root", "Sub", ...], img, token?, system, items?: [{name, type, img, system}]}]
+// (`token` is the prototype token image; it defaults to `img`)
 // (Item docs have no `items`). Fixed _ids mean re-runs replace in place and every @UUID / token link survives.
 // UPLOADS: local files served next to the JSON -> Foundry paths (uploaded once; existing files are kept).
 async () => {
@@ -35,8 +36,8 @@ async () => {
       const cls = d.items !== undefined || ["adversary", "npc", "environment", "character"].includes(d.type) ? Actor : Item;
       const coll = cls === Actor ? game.actors : game.items;
       const data = { ...d, folder: await folderPath(cls.documentName, d.folder) };
-      delete data._key;
-      if (cls === Actor) data.prototypeToken = { name: d.name, texture: { src: d.img } };
+      delete data._key; delete data.token;
+      if (cls === Actor) data.prototypeToken = { name: d.name, texture: { src: d.token ?? d.img } };
       await coll.get(d._id)?.delete();
       const doc = await cls.create(data, { keepId: true });
       out.created.push(`${doc.name} (${doc.uuid})`);

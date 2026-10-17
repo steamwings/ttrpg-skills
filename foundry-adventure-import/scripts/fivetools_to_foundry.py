@@ -354,6 +354,7 @@ class Converter:
                 before = c[:m.start()]
                 if before.count("<") > before.count(">") or before.count("{") > before.count("}"): continue
                 if before.endswith("@UUID[") or re.search(r"\w$", before) or re.match(r"\w", c[m.end():m.end() + 1]): continue
+                if re.search(r"<h\d[^>]*>[^<]*$", before): continue   # not inside headings (they become anchors)
                 c = before + f"@UUID[{e['uuid']}]{{{short}}}" + c[m.end():]
                 break
         return c

@@ -84,3 +84,6 @@ Claude in Chrome's `javascript_tool`. See `foundry-vtt/SKILL.md` → How to conn
   Downfall (book player map + regions), Watcher's Pool, Slanty Tower floors, Tollway interior, Ixjharatar's den. `open` polygons.
 - 2026-10-17 — Yon: book chapter, Motherhorn pins/tokens on 4 levels (opacity picks the level, `LABEL@level` forces one),
   3 supplements, 6 supplement scenes; two-trait checks ("Strength (Athletics) or Dexterity (Acrobatics)"), `check-icons.js`.
+- 2026-10-17 — Official art: `book_art.py` (book/bestiary art → portraits + round tokens) and `apply-art.js`; `create-docs.js`
+  takes `token`. Backdrop scenes from mood art (`create-backdrops.js`). Carnival chapter + hand-placed pins on an illustrated
+  map; autolink skips headings.

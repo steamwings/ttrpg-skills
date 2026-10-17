@@ -23,7 +23,7 @@ and one "📖" line links to the journal section with the long version (personal
    `examples/adventure-config.example.json`). Outputs `journal.json`, `tables.json`, `images.json`, `anchors.json`,
    `review.md`. Options: `split_areas` (a page per "D4. Name" area), `roll_tables` (dice tables → RollTables,
    embedded with `@Embed[RollTable.<id> rollable]`), `autolink` (first plain-text mention per page of named NPCs
-   the book never tags), no `journal.pack` = world uuids.
+   the book never tags; never inside headings, which become anchors), no `journal.pack` = world uuids.
 4. **Review** `review.md`: unmatched creatures/items (add `aliases`, `null` = known, no stat block) and 5e
    leftovers. Fix leftovers with `overrides` (exact find/replace on the rendered HTML) and re-run until the list
    holds only harmless lines (dimensions, flavour).
@@ -68,6 +68,23 @@ floating isles) get no edge walls: jumping and climbing are narrated with the en
 Light animation types (V14) include flame, torch, pulse, wave, fairy, starlight (there is no "fire"); `"anim": null`
 gives a steady light. Several floors drawn as separate images can be composited side by side (PIL) into one scene.
 Run `scripts/check-icons.js` on every generator's icon list before creating documents.
+
+## Official art and backdrops
+
+- **Actor art**: important NPCs get the book's art instead of a generic icon. Bestiary fluff images
+  (`bestiary/<SRC>/<Name>.webp`) and book illustrations (`adventure/<SRC>/...`, list them from the adventure JSON's
+  `image` entries) go in `MAP.json`; give a crop (`[cx, cy, size]`) to any actor whose token is generic or missing,
+  then `scripts/book_art.py MAP CROPS WORK` (portraits + round 400 px tokens, `tokens-preview.jpg` to check the
+  faces) and `scripts/apply-art.js` (sets `img`, prototype token and placed tokens). Group shots make poor tokens:
+  keep the old token or crop one figure. Generators should set the same `img`/`token` (`create-docs.js` reads
+  `token`), or a re-run puts the old art back.
+- **Backdrops** (mood art, no tokens): `scripts/create-backdrops.js` makes "theater" scenes (no grid, vision or fog)
+  in `Backdrops/<region>`: players see the place name, the GM sees "BG · name". Each links its journal page and gets
+  a GM pin to it, and the page gets a 🎬 line linking the backdrop and, when there is one, the battle map that comes
+  next. Use them for travel, arrivals and talk, then switch to the map when the fight or exploration starts. Re-run it
+  after re-importing a journal (the 🎬 lines live in the page).
+- **Illustrated maps without regions** (a carnival poster, a region map): place the pins by hand in percent of the
+  image, one pin per location page, with 2–3 letter labels; NPC tokens hidden next to where the text puts them.
 
 ## Journal layout
 
