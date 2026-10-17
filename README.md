@@ -75,3 +75,5 @@ Claude in Chrome's `javascript_tool`. See `foundry-vtt/SKILL.md` → How to conn
 - 2026-10-17 — Play content moves to the world (`move-packs-to-world.js`). Adventure import: a page per keyed area,
   RollTables via `@Embed`, NPC autolinks, GM-only semi-transparent area pins aligned with SIFT (`align_maps.py`,
   `create-area-notes.js`). Bavlorna's Cottage: 20 pins on 3 levels.
+- 2026-10-17 — Supplements: `pdf_to_fivetools.py` (PHB-style PDFs → 5etools-like JSON), `create-docs.js`, `page_prepend`,
+  `import.json` options, Daggerheart creature-conversion guidelines. First: The Watcher's Pool (journal, 4 actors, environment, item, handout).

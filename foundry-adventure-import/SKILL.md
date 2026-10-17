@@ -76,10 +76,29 @@ and one "📖" line links to the journal section with the long version (personal
 Speeds, darkvision, temporary hit points and hit point arithmetic need a human sentence: use `overrides`.
 Spells stay as italic flavour (no Daggerheart equivalents).
 
-## Supplement PDFs
+## Supplement PDFs (DMsGuild, Homebrewery/GMBinder "PHB" style)
 
-`pymupdf` (`pip install pymupdf --break-system-packages`; run scripts with `python3 -P -E`, not `-I`, or the
-user site-packages vanish). Plain `get_text()` duplicates running headers and splits drop caps ("M\nystery").
+`scripts/pdf_to_fivetools.py PDF OUT.json --skip <cover,credits,ads> --title ... --known creatures.json
+[--move "Child>Parent"]` rebuilds the structure from font roles (see its docstring) as a 5etools-like chapter, so the
+same converter, rules, area pages and links apply (`adventure` = OUT.json, `chapter` = 0). It re-tags DCs, skills,
+dice and conditions, turns bold creature names from `--known` into `{@creature}`, keeps verse line breaks (`\n` →
+`<br>`), merges drop caps and de-duplicates shadowed headings. `--move` fixes sidebars that land in the wrong section
+(reading order follows the content stream). It also writes `OUT.statblocks.json`: the raw 5e stat blocks to convert.
+`pymupdf`: `pip install pymupdf --break-system-packages`; run with `python3 -P -E`, not `-I` (that drops user
+site-packages). Supplement journals go to `<Adventure>/Expanded`; link them from the book chapter with `page_prepend`.
+
+## Converting creatures (Daggerheart, not 5e with new numbers)
+
+- Match the region's tier and the world's existing adversaries (Hither = Tier 2: Difficulty 13–16, HP 3–8, Stress
+  2–5, thresholds ~7/14 for small fry to ~13/26 for solos, attacks +1..+4 with 2dX+N damage).
+- Pick the adversary **type** by its job in the scene (standard, skulk, bruiser, leader, solo, social, minion…).
+- Features are text in the world's style: `@Lookup[@name]`, **Spend a Fear** for big moves, **Mark a Stress** for
+  repeatables, Reaction Rolls with a trait and Difficulty, DH conditions (Vulnerable, Restrained, Hidden), ranges.
+  Turn 5e bookkeeping (auras on turn start, recharge, legendary actions) into spotlight-driven moves.
+- Put the scene's tricks (terrain, puzzles, social stakes) on an **Environment** actor with potential adversaries.
+- Friendly NPCs are `npc` actors: short description, motives, notes with roleplay hooks and "in a fight, use X".
+- Data lives in a per-supplement generator script with fixed ids (ids.json) → `scripts/create-docs.js`
+  (delete + recreate by id, so re-run `link-actors.js` afterwards).
 
 ## Keep copyrighted text out of this repo
 

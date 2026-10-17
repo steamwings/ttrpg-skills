@@ -7,9 +7,11 @@
 // Target: the world (PACK = "") under folder paths, or a compendium (PACK = "world.<pack>", FOLDER_PATH[last] used).
 async () => {
   const BASE = "http://localhost:8765";
-  const PACK = "";                                  // "" = world sidebar
-  const JOURNAL_FOLDER = ["Witchlight", "Book"];
-  const TABLE_FOLDER = ["Witchlight", "Hither"];
+  // optional BASE/import.json overrides these: {"pack": "", "journalFolder": [...], "tableFolder": [...]}
+  const opt = await fetch(`${BASE}/import.json`).then(r => r.ok ? r.json() : {}).catch(() => ({}));
+  const PACK = opt.pack ?? "";                      // "" = world sidebar
+  const JOURNAL_FOLDER = opt.journalFolder ?? ["Witchlight", "Book"];
+  const TABLE_FOLDER = opt.tableFolder ?? ["Witchlight", "Hither"];
   const out = { uploaded: [], skipped: [], failed: [] };
 
   const FP = foundry.applications.apps.FilePicker.implementation;

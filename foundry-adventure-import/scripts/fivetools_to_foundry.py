@@ -220,7 +220,7 @@ class Converter:
         return str(parts[-1] if len(parts) > 2 and tag in ("filter",) else text)
 
     def inline(self, s):
-        s = convert_mechanics(html.escape(s, quote=False))
+        s = convert_mechanics(html.escape(s, quote=False)).replace("\n", "<br>")   # verse lines from PDFs
         # innermost tags first (tags can nest)
         rx = re.compile(r"\{@(\w+) ([^{}]*)\}")
         while rx.search(s):
@@ -400,6 +400,7 @@ class Converter:
             body = []
             for uuid in self.cfg.get("page_links", {}).get(title, []):
                 body.append(f"<p>🌲 Daggerheart: @UUID[{uuid}]</p>")
+            body += self.cfg.get("page_prepend", {}).get(title, [])   # raw HTML, e.g. links to supplements
             for e in entries:
                 if isinstance(e, dict) and e.get("name") == title:   # the page title is the h1
                     if e.get("id"): self.anchors[e["id"]] = (self.page_id, None)
