@@ -72,3 +72,6 @@ Claude in Chrome's `javascript_tool`. See `foundry-vtt/SKILL.md` → How to conn
 - 2026-10-17 — `foundry-adventure-import`: 5etools chapter → compendium journal (pages, keyed-area anchors, map image
   pages, environment links), 5e → Daggerheart conversion rules + review/overrides loop, browser-side image upload,
   actor 📖 back-links. Playwright MCP documented as a second transport. First chapter: Witchlight ch. 2 (Hither).
+- 2026-10-17 — Play content moves to the world (`move-packs-to-world.js`). Adventure import: a page per keyed area,
+  RollTables via `@Embed`, NPC autolinks, GM-only semi-transparent area pins aligned with SIFT (`align_maps.py`,
+  `create-area-notes.js`). Bavlorna's Cottage: 20 pins on 3 levels.

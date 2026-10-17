@@ -70,6 +70,7 @@ def trait_for(ability, skills, sentence):
 ABIL = r"(Strength|Dexterity|Constitution|Intelligence|Wisdom|Charisma)"
 SKILLS = r"(?: \((\{@skill [^}]+\}(?: or \{@skill [^}]+\})*)\))?"
 RX_CHECK = re.compile(r"(?:\b(a|an) )?\{@dc (\d+)\} " + ABIL + SKILLS + r" (group )?check")
+RX_PLAIN_CHECK = re.compile(ABIL + SKILLS + r" check(s)?\b")   # no DC: "disadvantage on Dexterity (Stealth) checks"
 RX_SAVE = re.compile(r"(?:\b(a|an) )?\{@dc (\d+)\} " + ABIL + r" saving throw")
 RX_SAVE_DC = re.compile(r"\(save \{@dc (\d+)\}\)")
 RX_DMG = re.compile(r"\b\d+ \(\{@dice ([^}]+)\}\) (\w+) damage")
@@ -115,6 +116,8 @@ def convert_mechanics(s):
         return (f"{an(trait)} " if art else "") + f"<strong>{trait} Reaction Roll ({dc})</strong>"
 
     s = RX_CHECK.sub(check, s)
+    s = RX_PLAIN_CHECK.sub(lambda m: trait_for(m.group(1), re.findall(r"\{@skill ([^}|]+)", m.group(2) or ""), s)
+                           + (" Rolls" if m.group(3) else " Roll"), s)
     s = RX_SAVE.sub(save, s)
     s = RX_SAVE_DC.sub(lambda m: f"(<strong>Reaction Roll {m.group(1)}</strong>)", s)
     s = RX_DMG.sub(lambda m: f"{{@dice {m.group(1)}}} {'physical' if m.group(2).lower() in PHYSICAL else 'magic'} damage", s)
@@ -136,6 +139,10 @@ def slugify_heading(text):
     s = "".join(c for c in s if not unicodedata.combining(c)).strip().lower()
     s = re.sub(r"\s+", "-", s)
     return re.sub(r"[\"']", "", s)[:64]
+
+
+AREA_RX = re.compile(r"^[A-Z]{1,2}\d+[a-z]?\. ")   # keyed map areas: "D4. Burned-out Balloon Factory"
+DICE_RX = re.compile(r"^(\d*)d(\d+)$")
 
 
 def plain(s):
@@ -161,6 +168,10 @@ class Converter:
         self.leftovers = defaultdict(list)
         self.page_id = None
         self.journal_id = cfg["journal"]["id"]
+        self.area_pages = []        # (page_id, title, html) split out of the current page
+        self.in_area = False
+        self.tables = []            # RollTable create data
+        self.ids = cfg.setdefault("page_ids", {})
 
     # ----- links -----
     def doc_link(self, doc, name, display, aliases):
@@ -242,6 +253,16 @@ class Converter:
             self.anchors[e["id"]] = (self.page_id, slugify_heading(plain(self.inline_noreport(e["name"]))))
         elif e.get("id"):
             self.anchors.setdefault(e["id"], (self.page_id, None))
+        name = plain(self.inline_noreport(e.get("name", "")))
+        if (self.cfg.get("split_areas") and not self.in_area and t in ("entries", "section")
+                and AREA_RX.match(name)):
+            pid = self.ids.setdefault(f"area:{e.get('id') or name}", rid())
+            saved, self.page_id, self.in_area = self.page_id, pid, True
+            if e.get("id"): self.anchors[e["id"]] = (pid, None)
+            body = "".join(self.render(x, 2) for x in e.get("entries", []))
+            self.page_id, self.in_area = saved, False
+            self.area_pages.append((pid, name, body))
+            return f"<p>📍 @@PAGE[{pid}]{{{name}}}</p>"
         if t in ("entries", "section", "inset", "insetReadaloud", "quote", "variant", "variantInner", "variantSub"):
             body = "".join(self.render(x, level + 1 if e.get("name") else level) for x in e.get("entries", []))
             head = f"<h{min(level, 6)}>{self.inline(e['name'])}</h{min(level, 6)}>" if e.get("name") else ""
@@ -264,6 +285,8 @@ class Converter:
                 else:
                     lis.append(f"<li>{self.render(it, level)}</li>")
             return "<ul>" + "".join(lis) + "</ul>"
+        if t == "table" and self.cfg.get("roll_tables") and e.get("colLabels") and DICE_RX.match(plain(e["colLabels"][0]).strip()):
+            return self.roll_table(e, level)
         if t == "table":
             cap = f"<caption>{self.inline(e['caption'])}</caption>" if e.get("caption") else ""
             th = "".join(f"<th>{self.inline(c)}</th>" for c in e.get("colLabels", []))
@@ -287,6 +310,43 @@ class Converter:
         if t == "hr":
             return "<hr>"
         return ""  # square/none/flowchart etc.: layout hints only
+
+    def roll_table(self, e, level):
+        n, faces = DICE_RX.match(plain(e["colLabels"][0]).strip()).groups()
+        name = plain(self.inline(e.get("caption") or "Table"))
+        tid = self.ids.setdefault(f"table:{name}", rid())
+        labels = [plain(self.inline(c)) for c in e["colLabels"][1:]]
+        results = []
+        for r in e.get("rows", []):
+            cells = r.get("row", []) if isinstance(r, dict) else r
+            first = self.cell(cells[0], level)
+            nums = [int(x) for x in re.findall(r"\d+", plain(re.sub(r"@@AREA\[[^\]]*\]\{([^}]*)\}", r"\1", first)))]
+            lo, hi = (nums[0], nums[-1]) if nums else (len(results) + 1, len(results) + 1)
+            if hi == 0: hi = 100 if faces == "100" else hi     # "00" on a d100
+            rest = [self.cell(c, level) for c in cells[1:]]
+            desc = rest[0] if len(rest) == 1 else "<br>".join(f"<strong>{l}:</strong> {c}" for l, c in zip(labels, rest))
+            if "@@AREA" in first:   # the roll number links to the encounter's section: keep it as a ➜ link
+                desc = re.sub(r"\{[^}]*\}", "{➜}", first) + " " + desc
+            results.append({"type": "text", "name": "", "description": desc,
+                            "range": [lo, hi], "weight": hi - lo + 1})
+        self.tables.append({"_id": tid, "name": name, "formula": f"{n or 1}d{faces}", "replacement": True,
+                            "displayRoll": True, "results": results})
+        return f"<p>@Embed[RollTable.{tid} rollable]</p>"
+
+    def autolink(self, c):
+        """Link the first plain-text mention per page of each `autolink` actor name (named NPCs the book never tags)."""
+        for name in self.cfg.get("autolink", []):
+            e = self.by_name.get(("Actor", name.lower()))
+            short = self.cfg.get("autolink_text", {}).get(name, name)
+            if not e or e["uuid"] in c: continue
+            # first occurrence outside tags and outside @UUID[...]{...} labels
+            for m in re.finditer(re.escape(short), c):
+                before = c[:m.start()]
+                if before.count("<") > before.count(">") or before.count("{") > before.count("}"): continue
+                if before.endswith("@UUID[") or re.search(r"\w$", before) or re.match(r"\w", c[m.end():m.end() + 1]): continue
+                c = before + f"@UUID[{e['uuid']}]{{{short}}}" + c[m.end():]
+                break
+        return c
 
     def inline_noreport(self, s):
         return re.sub(r"\{@\w+ ([^|}]*)[^}]*\}", r"\1", s)
@@ -334,8 +394,9 @@ class Converter:
 
     def build(self):
         journal = {"_id": self.journal_id, "name": self.cfg["journal"]["name"], "pages": []}
-        for sort, (title, entries) in enumerate(self.plan()):
-            self.page_id = self.cfg.setdefault("page_ids", {}).setdefault(title, rid())
+        for title, entries in self.plan():
+            self.page_id = self.ids.setdefault(title, rid())
+            self.area_pages = []
             body = []
             for uuid in self.cfg.get("page_links", {}).get(title, []):
                 body.append(f"<p>🌲 Daggerheart: @UUID[{uuid}]</p>")
@@ -345,19 +406,24 @@ class Converter:
                     body += [self.render(x, 2) for x in e.get("entries", [])]
                 else:
                     body.append(self.render(e, 2))
-            journal["pages"].append({"_id": self.page_id, "name": title, "type": "text", "sort": (sort + 1) * 100000,
-                                     "title": {"show": True, "level": 1},
+            journal["pages"].append({"_id": self.page_id, "name": title, "type": "text",
+                                     "sort": (len(journal["pages"]) + 1) * 100000, "title": {"show": True, "level": 1},
                                      "text": {"format": 1, "content": "".join(body)}})
+            for pid, name, html_ in self.area_pages:
+                journal["pages"].append({"_id": pid, "name": name, "type": "text",
+                                         "sort": (len(journal["pages"]) + 1) * 100000, "title": {"show": True, "level": 1},
+                                         "text": {"format": 1, "content": html_}})
         for img in self.cfg.get("image_pages", []):
             url = self.cfg["img_base"].rstrip("/") + "/" + img["path"]
             dest = self.cfg["img_dest"].rstrip("/") + "/" + img["path"].split("/")[-1]
             self.images[url] = dest
-            pid = self.cfg.setdefault("page_ids", {}).setdefault(img["title"], rid())
+            pid = self.ids.setdefault(img["title"], rid())
             journal["pages"].append({"_id": pid, "name": img["title"], "type": "image", "src": dest,
                                      "sort": (len(journal["pages"]) + 1) * 100000, "title": {"show": True, "level": 1},
                                      "image": {"caption": img.get("caption", "")}})
         # resolve area links and overrides
-        base = f"Compendium.{self.cfg['journal']['pack']}.JournalEntry.{self.journal_id}.JournalEntryPage."
+        pack = self.cfg["journal"].get("pack")
+        base = (f"Compendium.{pack}." if pack else "") + f"JournalEntry.{self.journal_id}.JournalEntryPage."
         def area(m):
             ref, text = m.group(1), m.group(2)
             if ref in self.anchors and self.anchors[ref][0]:
@@ -365,12 +431,16 @@ class Converter:
                 return f"@UUID[{base}{pid}{'#' + slug if slug else ''}]{{{text}}}"
             self.unmatched["Area (other chapter)"].add(f"{text} [{ref}]")
             return f"<em>{text}</em>"
-        for p in journal["pages"]:
-            if p["type"] != "text": continue
-            c = re.sub(r"@@AREA\[([^\]]*)\]\{([^}]*)\}", area, p["text"]["content"])
+        def fix(c):
+            c = re.sub(r"@@AREA\[([^\]]*)\]\{([^}]*)\}", area, c)
+            c = re.sub(r"@@PAGE\[([^\]]*)\]\{([^}]*)\}", lambda m: f"@UUID[{base}{m.group(1)}]{{{m.group(2)}}}", c)
             for a, b in self.cfg.get("overrides", []):
                 c = c.replace(a, b)
-            p["text"]["content"] = c
+            return c
+        for p in journal["pages"]:
+            if p["type"] == "text": p["text"]["content"] = self.autolink(fix(p["text"]["content"]))
+        for tb in self.tables:
+            for r in tb["results"]: r["description"] = fix(r["description"])
         return journal, base
 
 
@@ -388,6 +458,7 @@ def main(cfg_path, out_dir):
     if cfg["journal"].get("folder"): journal["folder"] = cfg["journal"]["folder"]
     (out / "journal.json").write_text(json.dumps(journal, ensure_ascii=False))
     (out / "images.json").write_text(json.dumps(conv.images, indent=1))
+    (out / "tables.json").write_text(json.dumps(conv.tables, ensure_ascii=False))
     anchors = {k: base + p + (f"#{s}" if s else "") for k, (p, s) in conv.anchors.items() if p}
     best = {c: base + max(pages, key=pages.get) for c, pages in conv.mentions.items()}
     (out / "anchors.json").write_text(json.dumps({"ids": anchors, "creature_pages": best}, indent=1, ensure_ascii=False))
@@ -401,7 +472,7 @@ def main(cfg_path, out_dir):
         rv += [f"- {l[:400]}" for l in dict.fromkeys(lines)]
     (out / "review.md").write_text("\n".join(rv))
     cfg_path.write_text(json.dumps(cfg, indent=1, ensure_ascii=False))   # persist generated ids
-    print(f"{journal['name']}: {len(journal['pages'])} pages, {len(conv.images)} images, "
+    print(f"{journal['name']}: {len(journal['pages'])} pages, {len(conv.tables)} tables, {len(conv.images)} images, "
           f"{sum(len(v) for v in conv.unmatched.values())} unmatched, {sum(len(v) for v in conv.leftovers.values())} leftover lines")
     for p in journal["pages"]:
         print(f"  {p['name']}: " + (f"{len(plain(p['text']['content']).split())} words" if p['type'] == 'text' else p['src']))

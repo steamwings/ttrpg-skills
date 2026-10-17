@@ -68,6 +68,7 @@ Two transports. Both run JS in a logged-in `/game` page; the scripts here work w
 | `scripts/find_sconces.py` | light markers drawn on the map (red sconce dots) → light positions |
 | `scripts/exterior_openings.py` | exterior doors and windows → points just outside, for night lights |
 | `scripts/create-exterior-lights.js` | night-only lanterns and window glow (darkness 0.45–1) |
+| `scripts/move-packs-to-world.js` | copy world-compendium actors/items into world folders (same ids), rewrite compendium links |
 | `scripts/upload-files.js` | upload workspace files into `Data/` through a hidden file input and `FilePicker.upload` |
 
 ## Grid distance comes from the map

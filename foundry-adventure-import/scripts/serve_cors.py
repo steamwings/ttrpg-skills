@@ -24,5 +24,5 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
 
 if __name__ == "__main__":
-    http.server.ThreadingHTTPServer(("0.0.0.0", int(sys.argv[2])),
+    http.server.ThreadingHTTPServer((sys.argv[3] if len(sys.argv) > 3 else "0.0.0.0", int(sys.argv[2])),
                                     functools.partial(Handler, directory=sys.argv[1])).serve_forever()

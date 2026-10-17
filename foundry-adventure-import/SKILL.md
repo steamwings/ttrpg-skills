@@ -1,6 +1,6 @@
 ---
 name: foundry-adventure-import
-description: Import a published adventure's text into Foundry VTT as compendium journals (one JournalEntry per chapter, a page per section, maps as image pages), converting D&D 5e mechanics to Daggerheart and linking creatures/items to existing actors; then back-link actor descriptions to their journal sections. Use when preparing an adventure, or a third-party supplement for one, for play in Foundry.
+description: Import a published adventure's text into Foundry VTT as world journals (one JournalEntry per chapter, a page per section and per keyed map area, maps as image pages, rollable tables), converting D&D 5e mechanics to Daggerheart and linking creatures/items to actors; then back-link actors to their sections and drop GM-only area pins ("D4") on the scenes. Use when preparing an adventure, or a third-party supplement for one, for play in Foundry.
 ---
 
 # Adventure import (5etools JSON / supplement PDFs → Foundry journals)
@@ -15,23 +15,38 @@ and one "📖" line links to the journal section with the long version (personal
    matching `5etools-img` repo. Third-party supplements come as PDFs: extract with PyMuPDF (see below).
 2. **Index the world**: dump every Actor/Item compendium index from the Foundry tab to `foundry-index.json`
    (`[{pack, doc, name, type, uuid, folder}]`) so the converter can link names.
+   Play content lives in the **world**, not in compendiums: Notes can only open world journals, players can
+   be shown world pages, and links stay inside one copy. `foundry-vtt/scripts/move-packs-to-world.js` copies
+   compendium actors/items into `Witchlight/...` folders with the same ids and rewrites `Compendium.world.*`
+   links; the compendiums stay as backup. Index with `pack: "world"` for world documents.
 3. **Convert** a chapter: `scripts/fivetools_to_foundry.py CONFIG OUT` (example config:
-   `examples/adventure-config.example.json`). Outputs `journal.json`, `images.json`, `anchors.json`, `review.md`.
+   `examples/adventure-config.example.json`). Outputs `journal.json`, `tables.json`, `images.json`, `anchors.json`,
+   `review.md`. Options: `split_areas` (a page per "D4. Name" area), `roll_tables` (dice tables → RollTables,
+   embedded with `@Embed[RollTable.<id> rollable]`), `autolink` (first plain-text mention per page of named NPCs
+   the book never tags), no `journal.pack` = world uuids.
 4. **Review** `review.md`: unmatched creatures/items (add `aliases`, `null` = known, no stat block) and 5e
    leftovers. Fix leftovers with `overrides` (exact find/replace on the rendered HTML) and re-run until the list
    holds only harmless lines (dimensions, flavour).
-5. **Serve and import**: `scripts/serve_cors.py OUT_DIR 8765` (background), then run `scripts/import-journal.js`
-   in the `/game` page. It uploads the images (fetched straight from GitHub by the browser) and replaces the
-   journal by id. IDs are written back into the config, so re-runs update in place and links stay valid.
+5. **Serve and import**: `scripts/serve_cors.py OUT_DIR 8765 127.0.0.1` (background), then run
+   `scripts/import-journal.js` in the `/game` page. It uploads the images (fetched straight from GitHub by the
+   browser), replaces the tables and the journal by id. IDs are written back into the config, so re-runs update
+   in place and links, Notes and back-links stay valid. Tip: put the function body in the served dir and run
+   `(0, eval)(await (await fetch(".../x.fn.js")).text())()` instead of pasting big scripts into `browser_evaluate`.
 6. **Back-link actors**: build `actor-links.json` (actor uuid → journal page uuid#anchor + label) and run
    `scripts/link-actors.js`. Pick the section by hand from the mention ranking (first/most mentions); the
    "Roleplaying X" or keyed-area section beats the first mention.
-7. **Look at it**: open a long page, check the TOC, read-aloud boxes, tables, links (`a.content-link.broken`).
+7. **Area pins**: 5etools map images carry `mapRegions` (area id + polygon in book-map pixels).
+   `scripts/align_maps.py BOOK_MAP LEVEL_IMG...` finds each scene image in the book map (SIFT + RANSAC; scene
+   images cut from the same art come out as pure translations, scale 1.0). Map each region centroid into the level
+   whose crop holds it with the largest margin, clamp to the image, then `scripts/create-area-notes.js`: one
+   semi-transparent SVG label per area (Note text has no alpha, so the label is drawn into the icon), Note → the
+   area's page, `levels` + `elevation` = that level's floor (otherwise a "-10 ft" badge shows). Pins are GM-only
+   because the journal's default ownership is NONE. Also set `scene.journal` + `journalEntryPage`.
+8. **Look at it**: open a long page, check the TOC, read-aloud boxes, tables, links (`a.content-link.broken`).
 
 ## Journal layout
 
-- One JournalEntry per chapter in the adventure's journal compendium, compendium folder `Book`; supplements in
-  `Expanded`. Pages: one per top-level section, big locations split out (explicit `pages` plan in the config —
+- One JournalEntry per chapter in the world folder `<Adventure>/Book`; supplements in `<Adventure>/Expanded`. Pages: one per top-level section, big locations split out (explicit `pages` plan in the config —
   the automatic `split_words` rule makes tiny pages). Page title = h1, sections h2…, keyed areas keep their
   "D4. Name" headings so they show in the TOC and can be linked.
 - Maps: GM and player versions as **image pages** (`image_pages`). A single page can be shown to players
@@ -40,8 +55,8 @@ and one "📖" line links to the journal section with the long version (personal
 - Read-aloud = `<blockquote>`, sidebars = `<aside class="inset">` (ProseMirror keeps both), dice = `[[/r XdY]]`.
 - Anchors: Foundry slugs headings with `String#slugify()` non-strict, quotes removed, 64 chars
   (`"D4. Burned-out Balloon Factory"` → `d4.-burned-out-balloon-factory`, `?` stays). `slugify_heading()` matches it.
-- Compendium ownership defaults to PLAYER: OBSERVER — players could read the whole adventure. Set the
-  journal pack to NONE for players.
+- World compendium ownership defaults to PLAYER: OBSERVER — players can read anything left in a pack.
+- Notes cannot target a heading anchor (only entry + page), which is why keyed areas get their own pages.
 
 ## 5e → Daggerheart rules (in the converter)
 

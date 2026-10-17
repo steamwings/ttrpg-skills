@@ -7,7 +7,9 @@
     to Daggerheart; later campaigns for the same group live in that world too.
   - A **different group** gets a different world, so don't merge worlds. Elements get reused by hand, not
     through shared modules.
-- No custom modules for content. Use **world-level compendiums** grouped in Compendium Folders:
+- Content in play lives in the **world sidebar** under one folder per adventure (`Witchlight/Adversaries/Hither`,
+  `Witchlight/Book`, …): Notes, Show Players and links need world documents. **World-level compendiums** (grouped
+  in Compendium Folders) are the backup / reuse copy:
   - *Witchlight*: Witchlight Scenes / Adversaries / Environments / NPCs / Items / Journals
     (journals: folder `Book` = one entry per chapter, `Expanded` = third-party supplements; see `foundry-adventure-import`)
   - *Group Core*: Group Adversaries / Journals / Tables (for future campaigns of the same group;

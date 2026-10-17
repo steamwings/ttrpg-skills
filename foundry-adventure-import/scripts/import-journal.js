@@ -1,12 +1,15 @@
-// import-journal.js — upload a converted chapter's images and (re)create its JournalEntry in a compendium.
+// import-journal.js — upload a converted chapter's images and (re)create its RollTables and JournalEntry.
 // Run in the Foundry /game page (Playwright browser_evaluate, or wrap for javascript_tool).
 // Inputs come from fivetools_to_foundry.py output, served by serve_cors.py:
 //   BASE/journal.json  JournalEntry data with fixed _ids (keepId) so re-runs replace in place
+//   BASE/tables.json   RollTable data (fixed _ids), embedded in the pages with @Embed[RollTable.<id> rollable]
 //   BASE/images.json   {sourceUrl: "worlds/<world>/assets/..."}; existing files are skipped
+// Target: the world (PACK = "") under folder paths, or a compendium (PACK = "world.<pack>", FOLDER_PATH[last] used).
 async () => {
-  const BASE = "http://localhost:8765";            // serve_cors.py
-  const PACK = "world.witchlight-journals";        // target compendium
-  const FOLDER = "Book";                           // compendium folder for the journal ("" = none)
+  const BASE = "http://localhost:8765";
+  const PACK = "";                                  // "" = world sidebar
+  const JOURNAL_FOLDER = ["Witchlight", "Book"];
+  const TABLE_FOLDER = ["Witchlight", "Hither"];
   const out = { uploaded: [], skipped: [], failed: [] };
 
   const FP = foundry.applications.apps.FilePicker.implementation;
@@ -16,6 +19,22 @@ async () => {
       cur = cur ? `${cur}/${part}` : part;
       try { await FP.browse("data", cur); } catch { await FP.createDirectory("data", cur); }
     }
+  };
+  const folderPath = async (type, names) => {
+    const coll = PACK ? game.packs.get(PACK).folders : game.folders;
+    let parent = null;
+    for (const name of (PACK ? names.slice(-1) : names)) {
+      let f = coll.find(f => f.type === type && f.name === name && (f.folder?.id ?? null) === (parent?.id ?? null));
+      if (!f) f = await Folder.create({ name, type, folder: parent?.id ?? null }, PACK ? { pack: PACK } : {});
+      parent = f;
+    }
+    return parent?.id ?? null;
+  };
+  const replace = async (cls, data) => {   // delete + create keeps ids stable and drops stale pages/results
+    const old = PACK ? await game.packs.get(PACK).getDocument(data._id)
+      : game.collections.get(cls.documentName).get(data._id);
+    if (old) await old.delete();
+    return cls.create(data, { keepId: true, ...(PACK ? { pack: PACK } : {}) });
   };
 
   // 1. images
@@ -37,17 +56,16 @@ async () => {
     } catch (e) { out.failed.push(`${dest}: ${e.message}`); }
   }
 
-  // 2. journal (replace by id)
+  // 2. roll tables
+  const tables = await (await fetch(`${BASE}/tables.json`)).json().catch(() => []);
+  const tFolder = tables.length ? await folderPath("RollTable", TABLE_FOLDER) : null;
+  out.tables = [];
+  for (const t of tables) out.tables.push((await replace(RollTable, { ...t, folder: tFolder })).name);
+
+  // 3. journal
   const data = await (await fetch(`${BASE}/journal.json`)).json();
-  const pack = game.packs.get(PACK);
-  if (FOLDER) {
-    let f = pack.folders.find(f => f.name === FOLDER);
-    if (!f) f = await Folder.create({ name: FOLDER, type: "JournalEntry" }, { pack: PACK });
-    data.folder = f.id;
-  }
-  const old = await pack.getDocument(data._id);
-  if (old) await old.delete();
-  const doc = await JournalEntry.create(data, { pack: PACK, keepId: true });
+  data.folder = await folderPath("JournalEntry", JOURNAL_FOLDER);
+  const doc = await replace(JournalEntry, data);
   out.journal = { uuid: doc.uuid, pages: doc.pages.size };
   return out;
 }
