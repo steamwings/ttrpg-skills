@@ -31,6 +31,8 @@ and one "📖" line links to the journal section with the long version (personal
    (background commands get killed after 2 h):
    `browser_run_code_unsafe`: `page.context().route("http://localhost:8765/**", r => r.fulfill({path: ROOT + name,
    headers: {"Access-Control-Allow-Origin": "*"}}))` (register once per browser context; re-navigate to /game after).
+   Wrap the fulfill in try/catch and answer 404 on a missing file: an unfulfilled route leaves `fetch` hanging forever
+   (scripts that read an optional `import.json` then never return).
    Fallback: `scripts/serve_cors.py OUT_DIR 8765 127.0.0.1` in the background. Every browser script reads
    `globalThis.__IMPORT_BASE ?? "http://localhost:8765"` plus optional `import.json` options, so one served tree can hold
    several jobs in sub-folders (`__IMPORT_BASE = ".../scene-cove"`). Then run
@@ -71,6 +73,15 @@ V14 Level per map (elevation bands, e.g. den −10..0 under a 0..20 ground floor
 stairs, on both levels. Paste the smaller map onto a canvas the size of the main level image, offset so the staircases
 line up (snap the offset to the grid). `scripts/merge-scene-as-level.js` folds an already-built scene into another.
 Side-by-side composites of floors are only a fallback.
+
+**Ambient lights cover the room**: a room light's `dim` radius should reach most of the room (walls stop it at the
+edge anyway). After building a scene run `scripts/fit-light-radius.js` (raises `dim` to the radius covering 95% of the
+wall-bounded area the light sees, rounded up to 5 ft; skips candles ≤ 10 ft, open areas > 60 ft and hand-placed
+lights; `dry: true` first). When the user tunes lights by hand, copy the values into the spec so a rebuild keeps them.
+
+**Floors drawn side by side** (one image, no Levels) still need travel between them: `scripts/link-teleports.js` makes
+GM-only region pairs with `teleportToken` (two-way stairs, one-way tricks like infinite stairs, magic doors), landing in
+the centre of the destination so tokens don't bounce back.
 
 Light animation types (V14) include flame, torch, pulse, wave, fairy, starlight (there is no "fire"); `"anim": null`
 gives a steady light. Several floors drawn as separate images can be composited side by side (PIL) into one scene.

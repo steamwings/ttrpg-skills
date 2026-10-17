@@ -90,3 +90,5 @@ Claude in Chrome's `javascript_tool`. See `foundry-vtt/SKILL.md` → How to conn
 - 2026-10-17 — Connected maps become Levels of one scene: `merge-scene-as-level.js` (Brigands' Tollway + the den below it).
 - 2026-10-17 — Palace chapter: pins on a 4-level scene where the upper floors come from the book map's insets
   (each inset has its own offset: fix those pins by hand or with `LABEL@level`).
+- 2026-10-17 — `fit-light-radius.js` (room lights cover the room), `link-teleports.js` (stairs between side-by-side floors),
+  Playwright route answers 404 for missing files.
