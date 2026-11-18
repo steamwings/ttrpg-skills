@@ -35,6 +35,15 @@ Two transports. Both run JS in a logged-in `/game` page; the scripts here work w
 - **Sets:** `JSON.stringify(new Set([...]))` is `{}`. Use `Array.from(doc.levels)`.
 - **The user is working live in the same world.** Re-inspect before editing, because they rename or
   delete regions between turns. Make scripts idempotent (replace by name).
+- **Live world: never `game.togglePause` or `scene.activate()`** while prepping. Both are global and players
+  see them at once. Look at scenes with `scene.view()` (your client only) and return with
+  `game.scenes.active.view()`. Check who's online first: `game.users.filter(u => u.active)`.
+- **Playwright MCP browser resets** after idle time (`about:blank`, `game is not defined`): navigate straight
+  to `/game` again. Never open `/` or `/join` with a saved session: that can end it.
+- **Saved session (`--storage-state`)** is read only when the MCP creates its browser context. After the user
+  re-logs in, `browser_close` and navigate again, or you keep the old cookies.
+- **Long scripts:** write them to a file and run `browser_run_code_unsafe` with `filename`
+  (`async (page) => await page.evaluate(async () => { ... })`). Easier to fix and re-run than inline code.
 - Batch clicks and screenshots with `browser_batch`. Screenshot after visible changes
   (`save_to_disk: true` gives a file you can send with SendUserFile).
 
@@ -71,6 +80,8 @@ Two transports. Both run JS in a logged-in `/game` page; the scripts here work w
 | `scripts/sync-world-to-packs.js` | back up the world's play copies into the compendiums (same ids, links rewritten) |
 | `scripts/move-packs-to-world.js` | copy world-compendium actors/items into world folders (same ids), rewrite compendium links |
 | `scripts/upload-files.js` | upload workspace files into `Data/` through a hidden file input and `FilePicker.upload` |
+| `scripts/upload-via-playwright.js` | Playwright MCP: upload one file with `page.route` + `FilePicker.upload` (no file server, no chooser) |
+| `scripts/procedural_swamp_map.py` | generate a grid-aligned swamp battle map (well, causeway, hummocks, fog) when there is no map art |
 
 ## Grid distance comes from the map
 
@@ -94,6 +105,9 @@ Check both directions (up **and** down).
   "can't pick a class" was **not** user error. Fix: reinstall or update the system from Setup → Game
   Systems. Check the console (`read_console_messages` or the Playwright console log, pattern `ENOENT|Error`) whenever a sheet
   misbehaves.
+- Token size follows the actor's `system.size` (`medium` 1, `large` 2, `custom` keeps the token's own size).
+  Horde `typeData.hordeHP` is creatures per HP. Countdowns live in the `daggerheart.Countdowns` world setting,
+  and automatic progressions tick even while hidden. See `daggerheart-encounters`.
 - D&D 5e compendium actors do **not** port (the system is tagged dnd5e). Rebuild adversaries in
   Daggerheart and use old name lists only as a checklist. Scenes (without a system tag) port fine.
 

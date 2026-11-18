@@ -10,6 +10,7 @@ instructions) plus `scripts/`, `references/` and `examples/`.
 | [`map-prep/`](map-prep/SKILL.md) | Measuring grid pitch/phase and cropping multi-floor maps to identical, grid-aligned canvases |
 | [`foundry-auto-walls/`](foundry-auto-walls/SKILL.md) | Auto-detecting walls, doors and windows from a map image (two methods, by map style) and pushing them per level |
 | [`foundry-adventure-import/`](foundry-adventure-import/SKILL.md) | Adventure text → GM journals (5etools JSON or supplement PDFs), 5e → Daggerheart mechanics, actor ↔ journal links |
+| [`daggerheart-encounters/`](daggerheart-encounters/SKILL.md) | Designing and building a session's encounter: Battle Points, lean adversaries, environment, countdowns, map, hidden tokens, GM page |
 
 Typical pipeline for a new multi-floor map:
 `map-prep` (crop/align) → `foundry-vtt/upload-files.js` → Levels + `create-stair.js` +
@@ -92,3 +93,7 @@ Claude in Chrome's `javascript_tool`. See `foundry-vtt/SKILL.md` → How to conn
   (each inset has its own offset: fix those pins by hand or with `LABEL@level`).
 - 2026-10-17 — `fit-light-radius.js` (room lights cover the room), `link-teleports.js` (stairs between side-by-side floors),
   Playwright route answers 404 for missing files.
+- 2026-11-18 — `daggerheart-encounters` skill (Battle Points, pulled punches for early high-tier NPCs, countdown and
+  token-size quirks, back-pocket minions, idempotent build scripts). `procedural_swamp_map.py` (battle map without
+  source art, `cleared` variant) and `upload-via-playwright.js`. Live-world rules: no pause/activate, MCP browser
+  resets, saved-session reload. First uses: an ooze-well fight and a two-group fog chase in Hither.
