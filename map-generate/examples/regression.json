@@ -1,0 +1,11 @@
+{
+ "versions": {
+  "pillow": "13.0.0",
+  "numpy": "2.5.5",
+  "scipy": "1.18.1"
+ },
+ "hashes": {
+  "thirsty-well": "1fdfbc79a800ed49d91f36bc38b765b7a18b4d6e83ab5317f7670235555120cb",
+  "thirsty-well-cleared": "6995b56516470124ed77c1631a6ac96739ff19381f6e9d934415255c6059137e"
+ }
+}

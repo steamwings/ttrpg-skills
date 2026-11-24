@@ -8,6 +8,7 @@ instructions) plus `scripts/`, `references/` and `examples/`.
 |---|---|
 | [`foundry-vtt/`](foundry-vtt/SKILL.md) | Driving a Foundry world from the browser tab: scenes, Scene Levels, stairs, surfaces, uploads, Daggerheart system quirks, world conventions |
 | [`map-prep/`](map-prep/SKILL.md) | Measuring grid pitch/phase and cropping multi-floor maps to identical, grid-aligned canvases |
+| [`map-generate/`](map-generate/SKILL.md) | Procedural battle maps from a layout spec (biome + features in grid squares), with walls and lights for the scene |
 | [`foundry-auto-walls/`](foundry-auto-walls/SKILL.md) | Auto-detecting walls, doors and windows from a map image (two methods, by map style) and pushing them per level |
 | [`foundry-adventure-import/`](foundry-adventure-import/SKILL.md) | Adventure text → GM journals (5etools JSON or supplement PDFs), 5e → Daggerheart mechanics, actor ↔ journal links |
 | [`daggerheart-encounters/`](daggerheart-encounters/SKILL.md) | Designing and building a session's encounter: Battle Points, lean adversaries, environment, countdowns, map, hidden tokens, GM page |
@@ -97,3 +98,7 @@ Claude in Chrome's `javascript_tool`. See `foundry-vtt/SKILL.md` → How to conn
   token-size quirks, back-pocket minions, idempotent build scripts). `procedural_swamp_map.py` (battle map without
   source art, `cleared` variant) and `upload-via-playwright.js`. Live-world rules: no pause/activate, MCP browser
   resets, saved-session reload. First uses: an ooze-well fight and a two-group fog chase in Hither.
+- 2026-11-22 — `map-generate` skill: `procedural_swamp_map.py` becomes a layout spec (`examples/thirsty-well.json`)
+  + shared toolkit + swamp biome + features (well, causeway, hummock, trees), built to take new biomes. Writes a
+  scene.json for `build-scene.js` (the ooze well emits its light). `--set` for state variants (`well.state=cleared`).
+  `check_regression.py` checks that both Thirsty O'-Well maps still render byte-identical.

@@ -52,7 +52,7 @@ Two transports. Both run JS in a logged-in `/game` page; the scripts here work w
 - One Scene, several **Levels** (name, elevation band, own **background texture**).
 - A Level texture **fills the whole scene**: no x/y/size. So every floor image must be pre-cropped
   to the **same canvas size, with the grid phase at 0**, and floors must be aligned to each other.
-  Use the `map-prep` skill.
+  Use the `map-prep` skill. For maps with no source art, use `map-generate`.
 - Canvas coords = image px + `scene.dimensions.sceneX/sceneY` (the padding offset). All scripts
   here take image px and add the offset themselves.
 - **Stairs** = a Region with the `changeLevel` behavior, tagged (`levels`) on **every** level it
@@ -81,7 +81,6 @@ Two transports. Both run JS in a logged-in `/game` page; the scripts here work w
 | `scripts/move-packs-to-world.js` | copy world-compendium actors/items into world folders (same ids), rewrite compendium links |
 | `scripts/upload-files.js` | upload workspace files into `Data/` through a hidden file input and `FilePicker.upload` |
 | `scripts/upload-via-playwright.js` | Playwright MCP: upload one file with `page.route` + `FilePicker.upload` (no file server, no chooser) |
-| `scripts/procedural_swamp_map.py` | generate a grid-aligned swamp battle map (well, causeway, hummocks, fog) when there is no map art |
 
 ## Grid distance comes from the map
 

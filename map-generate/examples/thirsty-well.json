@@ -1,0 +1,22 @@
+{
+ "name": "The Thirsty O'-Well",
+ "biome": "swamp",
+ "size": [20, 14],
+ "grid": {"size": 100, "distance": 5},
+ "seed": 7,
+ "darkness": 0.4,
+ "src": "assets/maps/prismeer/hither/thirsty-o-well.webp",
+ "features": [
+  {"id": "well", "type": "well", "at": [10.5, 6.4], "r_outer": 1.25, "r_inner": 0.82, "state": "ooze"},
+  {"id": "causeway", "type": "causeway",
+   "path": [[-0.6, 10.1], [3, 9.5], [6.5, 8.9], [9.8, 8.6], [13, 8], [16, 7], [18.5, 6], [20.6, 5.4]]},
+  {"type": "hummock", "at": [4.3, 3.8], "r": 1.5},
+  {"type": "hummock", "at": [14.8, 3.4], "r": 1.2},
+  {"type": "hummock", "at": [15.2, 10.6], "r": 1.6},
+  {"type": "hummock", "at": [6.4, 11.7], "r": 1.2},
+  {"type": "hummock", "at": [2.6, 7.6], "r": 1.0},
+  {"id": "mangroves", "type": "trees", "kind": "mangrove",
+   "at": [[0.8, 0.9], [3.3, -0.2], [-0.3, 4.2], [15, -0.4], [18.8, 0.8], [20.4, 3.8], [19.5, 13],
+          [16.2, 14.4], [2, 13.5], [-0.4, 11.5], [7.6, 14.6], [11.8, 14.4], [9, -0.6]]}
+ ]
+}

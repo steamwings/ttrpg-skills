@@ -57,8 +57,9 @@ lore/page links it needs → adversaries → scene + tokens → environment → 
   a GM Note pinned to the encounter page. For fog that really hides people: global light off
   (`darknessLevel` above `globalLight.darkness.max`), placed PC tokens `sight:{enabled:true, range:30,
   visionMode:"basic"}`, `weather:"fog"`. Lit areas are visible at any range, so lights read as "lights in the fog".
-- **No map art?** `foundry-vtt/scripts/procedural_swamp_map.py` makes a grid-aligned battle map; upload it with
-  `foundry-vtt/scripts/upload-via-playwright.js`.
+- **No map art?** The `map-generate` skill makes a grid-aligned battle map from a layout spec, plus a scene.json
+  of walls and lights. Upload it with `foundry-vtt/scripts/upload-via-playwright.js`, or build the scene with
+  `build-scene.js`.
 - **GM page** (in the GM's notes journal): links (scene, environment, countdowns, lore), the idea, budget,
   read-aloud per group (`<blockquote>`), countdown rules, NPC handling, back pocket, ways it ends, aftermath.
   Back-link it from the environment and adversary descriptions (📖 line).
